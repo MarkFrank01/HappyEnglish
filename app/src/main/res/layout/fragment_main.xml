@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/et_main_input"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_height"
+                android:background="@color/colorPrimary"
+                android:cursorVisible="true"
+                android:gravity="top"
+                android:hint="@string/input_hint"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/white"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/body1_primary"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp">
+
+                <TextView
+                    android:id="@+id/tv_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/activity_vertical_margin"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/clear"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/body1_primary"/>
+
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/buttonTranslate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="16dp"
+                    android:background="@color/colorPrimary"
+                    android:text="@string/translate"
+                    android:textColor="@android:color/white"/>
+
+            </RelativeLayout>
+
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+
+            <include
+                android:id="@+id/include"
+                layout="@layout/notebook_mark_item"
+                android:visibility="invisible"/>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>
