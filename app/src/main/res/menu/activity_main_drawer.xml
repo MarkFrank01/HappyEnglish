@@ -2,11 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-
-        <item
-            android:id="@+id/nav_article"
-            android:icon="@drawable/ic_import_contacts_white_24dp"
-            android:title="@string/article"/>
         <item
             android:id="@+id/nav_translate"
             android:icon="@drawable/ic_translate_white_24dp"

@@ -1,9 +1,8 @@
-package com.wjc.simpletranslate.ui;
+package com.wjc.simpletranslate.translate;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,42 +16,32 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.adapter.SampleAdapter;
-import com.wjc.simpletranslate.constant.Constants;
 import com.wjc.simpletranslate.db.DBUtil;
 import com.wjc.simpletranslate.db.NotebookDatabaseHelper;
 import com.wjc.simpletranslate.model.BingModel;
-import com.wjc.simpletranslate.util.NetworkUtil;
-
 
 import java.util.ArrayList;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
 /**
- * Created by lizhaotailang on 2016/7/12.
+ * Created by Administrator on 2017/5/1.
  */
-
-public class TranslateFragment extends Fragment {
-
+public class TranslateFragment extends Fragment
+                    implements TranslateContract.View{
     private EditText editText;
     private TextView textViewClear;
     private ProgressBar progressBar;
@@ -61,7 +50,6 @@ public class TranslateFragment extends Fragment {
     private View viewResult;
     private AppCompatButton button;
 
-    private ArrayList<BingModel.Sample> samples;
     private RecyclerView recyclerView;
     private SampleAdapter adapter;
 
@@ -76,14 +64,7 @@ public class TranslateFragment extends Fragment {
     private boolean completeWithEnter;
     private boolean showSamples;
 
-    // empty constructor required
-    public TranslateFragment(){
-
-    }
-
-    public static TranslateFragment newInstance() {
-        return new TranslateFragment();
-    }
+    private TranslateContract.Presenter presenter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,35 +80,22 @@ public class TranslateFragment extends Fragment {
 
         initViews(view);
 
-        //在这里进行网络连接的判断，如果没有连接，则进行snackbar的提示
-        //如果有网络连接，则不会有任何的操作
-        if (!NetworkUtil.isNetworkConnected(getActivity())){
-            showNoNetwork();
-        }
+        presenter.checkNet();
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-
-                if (!NetworkUtil.isNetworkConnected(getActivity())) {
-                    showNoNetwork();
-                } else if (editText.getText() == null || editText.getText().length() == 0) {
-                    Snackbar.make(button, getString(R.string.no_input), Snackbar.LENGTH_SHORT)
-                            .show();
-                } else {
-
-                    sendReq(editText.getText().toString());
-
-                }
+            public void onClick(View v) {
+                presenter.readyTrans(editText.getText().length(),editText.getText() == null ,editText.getText().toString());
             }
         });
 
         textViewClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editText.setText("");
+                clearText();
             }
         });
+
 
         editText.addTextChangedListener(new TextWatcher() {
 
@@ -150,7 +118,7 @@ public class TranslateFragment extends Fragment {
                 if (completeWithEnter) {
                     if (count == 1 && s.charAt(start) == '\n') {
                         editText.getText().replace(start, start + 1, "");
-                        sendReq(editText.getEditableText().toString());
+                        presenter.sendReq(editText.getEditableText().toString());
                     }
                 }
 
@@ -214,11 +182,17 @@ public class TranslateFragment extends Fragment {
             }
         });
 
-
         return view;
     }
 
-    private void initViews(View view) {
+    @Override
+    public void setPresenter(TranslateContract.Presenter presenter) {
+        if (presenter != null) {
+            this.presenter = presenter;
+        }
+    }
+
+    public void initViews(View view) {
 
         editText = (EditText) view.findViewById(R.id.et_main_input);
         textViewClear = (TextView) view.findViewById(R.id.tv_clear);
@@ -239,112 +213,58 @@ public class TranslateFragment extends Fragment {
         button = (AppCompatButton) view.findViewById(R.id.buttonTranslate);
     }
 
-    private void sendReq(String in){
+    @Override
+    public void nullInput() {
+        Snackbar.make(button, getString(R.string.no_input), Snackbar.LENGTH_SHORT).show();
 
+    }
+
+    @Override
+    public void clearText() {
+        editText.setText("");
+    }
+
+    @Override
+    public void isCollect() {
+        imageViewMark.setImageResource(R.drawable.ic_grade_white_24dp);
+//        Snackbar.make(button,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void noCollect() {
+        imageViewMark.setImageResource(R.drawable.ic_star_border_white_24dp);
+//        Snackbar.make(button, R.string.add_to_notebook,Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showCopy() {
+        Snackbar.make(button,R.string.copy_done,Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void TransResult(String result) {
+        textViewResult.setText(result);
+    }
+
+    @Override
+    public void showResult() {
+        progressBar.setVisibility(View.INVISIBLE);
+        viewResult.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideResult() {
         progressBar.setVisibility(View.VISIBLE);
         viewResult.setVisibility(View.INVISIBLE);
-
-        // 监听输入面板的情况，如果激活则隐藏
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm.isActive()){
-            imm.hideSoftInputFromWindow(button.getWindowToken(),0);
-        }
-
-        in = inputFormat(in);
-
-        String url = Constants.BING_BASE + "?Word=" + in + "&Samples=";
-
-        if (showSamples) {
-            url += "true";
-        } else {
-            url += "false";
-        }
-
-        StringRequest request = new StringRequest(Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String s) {
-
-                        try {
-
-                            Gson gson = new Gson();
-                            model = gson.fromJson(s, BingModel.class);
-
-                            if (model != null) {
-
-                                result = model.getWord() + "\n";
-
-                                if (DBUtil.queryIfItemExist(dbHelper, model.getWord())) {
-                                    imageViewMark.setImageResource(R.drawable.ic_grade_white_24dp);
-                                    isMarked = true;
-                                } else {
-                                    imageViewMark.setImageResource(R.drawable.ic_star_border_white_24dp);
-                                    isMarked = false;
-                                }
-
-                                if (model.getPronunciation() != null) {
-                                    BingModel.Pronunciation p = model.getPronunciation();
-                                    result = result + "\nAmE:" + p.getAmE() + "\nBrE:" + p.getBrE() + "\n";
-                                }
-
-                                for (BingModel.Definition def : model.getDefs()) {
-                                    result = result + def.getPos() + "\n" + def.getDef() + "\n";
-                                }
-
-                                result = result.substring(0, result.length() - 1);
-
-                                if (model.getSams() != null && model.getSams().size() != 0) {
-
-                                    if (samples == null) {
-                                        samples = new ArrayList<>();
-                                    }
-
-                                    samples.clear();
-
-                                    for (BingModel.Sample sample : model.getSams()) {
-                                        samples.add(sample);
-                                    }
-
-                                    if (adapter == null) {
-                                        adapter = new SampleAdapter(getActivity(), samples);
-                                        recyclerView.setAdapter(adapter);
-                                    } else {
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                }
-
-                                progressBar.setVisibility(View.INVISIBLE);
-                                viewResult.setVisibility(View.VISIBLE);
-
-                                textViewResult.setText(result);
-                            }
-                        } catch (JsonSyntaxException ex) {
-                            showTransError();
-                        }
-
-                        progressBar.setVisibility(View.GONE);
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                progressBar.setVisibility(View.GONE);
-                showTransError();
-            }
-        });
-
-        queue.add(request);
-
     }
 
-    //去掉输入文本中的回车符号
-    private String inputFormat(String in){
-        in = in.replace("\n","");
-        return in;
+    @Override
+    public void hideProgress() {
+        progressBar.setVisibility(View.GONE);
     }
 
-    private void showNoNetwork(){
+    @Override
+    public void showNoNetwork() {
         Snackbar.make(button, R.string.no_network_connection, Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.settings, new View.OnClickListener() {
                     @Override
@@ -354,7 +274,8 @@ public class TranslateFragment extends Fragment {
                 }).show();
     }
 
-    private void showTransError() {
+    @Override
+    public void showTransError() {
         Snackbar.make(button, R.string.trans_error, Snackbar.LENGTH_SHORT)
                 .setAction(R.string.retry, new View.OnClickListener() {
                     @Override
@@ -365,16 +286,41 @@ public class TranslateFragment extends Fragment {
     }
 
     @Override
+    public void setAdapter(ArrayList<BingModel.Sample> samples) {
+        if (adapter == null) {
+            Log.e("samples1",samples.size()+"");
+            adapter = new SampleAdapter(getActivity(), samples);
+            recyclerView.setAdapter(adapter);
+            Log.e("adapter","is null");
+        } else {
+            adapter.notifyDataSetChanged();
+            Log.e("adapter","not null");
+        }
+    }
+
+    @Override
+    public RequestQueue initQueue() {
+        return queue;
+    }
+
+    @Override
+    public NotebookDatabaseHelper initdbHelper() {
+        return dbHelper;
+    }
+
+
+    @Override
     public void onResume() {
         super.onResume();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         completeWithEnter = sp.getBoolean("enter_key", false);
         showSamples = sp.getBoolean("samples", true);
-        if (samples != null) {
-            samples.clear();
-        }
+//        if (samples != null) {
+//            samples.clear();
+//        }
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
     }
+
 }

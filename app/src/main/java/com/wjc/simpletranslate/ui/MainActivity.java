@@ -23,10 +23,12 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.wjc.simpletranslate.Article.ArticleFragment;
 import com.wjc.simpletranslate.BaseActivity;
+import com.wjc.simpletranslate.MyApplication;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.search.SearchActivity;
+import com.wjc.simpletranslate.translate.TranslateFragment;
+import com.wjc.simpletranslate.translate.TranslatePresenter;
 import com.wjc.simpletranslate.util.ActivityCollectorUtil;
 import com.wjc.simpletranslate.util.HttpUtil;
 
@@ -44,12 +46,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private ImageView header_day_pic;
 
     private TranslateFragment translateFragment;
-    private ArticleFragment articleFragment;
     private DailyOneFragment dailyOneFragment;
     private NoteBookFragment noteBookFragment;
 
+    private TranslatePresenter translatePresenter;
 
-    private static final String ACTION_ARTICLE = "com.wjc.simpletranslate.article";
     private static final String ACTION_DAILY_ONE = "com.wjc.simpletranslate.dailyone";
     private static final String ACTION_NOTEBOOK = "com.wjc.simpletranslate.notebook";
     private static final String ACTION_TRANSLATE= "com.wjc.simpletranslate.translate";
@@ -63,10 +64,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Explode explode = new Explode();
-        explode.setDuration(500);
-        getWindow().setExitTransition(explode);
-        getWindow().setEnterTransition(explode);
+
 
         prefs= PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -74,24 +72,22 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if (savedInstanceState != null) {
             FragmentManager manager = getSupportFragmentManager();
-            articleFragment = (ArticleFragment) manager.getFragment(savedInstanceState, "articleFragment");
             translateFragment = (TranslateFragment) manager.getFragment(savedInstanceState, "translateFragment");
             dailyOneFragment = (DailyOneFragment) manager.getFragment(savedInstanceState, "dailyOneFragment");
             noteBookFragment = (NoteBookFragment) manager.getFragment(savedInstanceState, "noteBookFragment");
 
         } else {
-            articleFragment = new ArticleFragment();
             translateFragment = new TranslateFragment();
             dailyOneFragment = new DailyOneFragment();
             noteBookFragment = new NoteBookFragment();
         }
+
+        translatePresenter=new TranslatePresenter(MyApplication.getContext(),translateFragment);
+
+
         FragmentManager manager = getSupportFragmentManager();
 
-        if (!articleFragment.isAdded()) {
-            manager.beginTransaction()
-                    .add(R.id.container_main, articleFragment, "articleFragment")
-                    .commit();
-        }
+
 
         if (!translateFragment.isAdded()) {
             manager.beginTransaction()
@@ -114,12 +110,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         Intent intent = getIntent();
 
-        if (ACTION_TRANSLATE.equals(intent.getAction())) {
+        if (ACTION_DAILY_ONE.equals(intent.getAction())) {
             showHideFragment(1);
-        } else if (ACTION_DAILY_ONE.equals(intent.getAction())) {
-            showHideFragment(2);
         } else if (ACTION_NOTEBOOK.equals(intent.getAction())) {
-            showHideFragment(3);
+            showHideFragment(2);
         } else {
             showHideFragment(0);
         }
@@ -129,7 +123,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private void initViews() {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.article);
+        toolbar.setTitle(R.string.translate);
         setSupportActionBar(toolbar);
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -225,22 +219,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         int id = item.getItemId();
-
-      if (id == R.id.nav_article) {
+     if (id == R.id.nav_translate) {
 
             showHideFragment(0);
 
-        } if (id == R.id.nav_translate) {
+        } else if (id == R.id.nav_daily) {
 
             showHideFragment(1);
 
-        } else if (id == R.id.nav_daily) {
-
-            showHideFragment(2);
-
         } else if (id == R.id.nav_notebook) {
 
-            showHideFragment(3);
+            showHideFragment(2);
 
         } else if (id == R.id.nav_change_dayornight) {
 
@@ -290,9 +279,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (articleFragment.isAdded()) {
-            getSupportFragmentManager().putFragment(outState, "articleFragment", articleFragment);
-        }
 
         if (translateFragment.isAdded()) {
             getSupportFragmentManager().putFragment(outState, "translateFragment", translateFragment);
@@ -314,32 +300,26 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * set the navigation's checked item
      *
      * @param position which fragment to show, only 4 values at this time
-     *                 0 for article  fragment
-     *                 1 for translate fragment
-     *                 2 for daily one fragment
-     *                 3 for notebook fragment
+     *                 0 for translate fragment
+     *                 1 for daily one fragment
+     *                 2 for notebook fragment
      */
     private void showHideFragment(@IntRange(from = 0, to = 3) int position) {
 
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().hide(translateFragment).commit();
-        manager.beginTransaction().hide(articleFragment).commit();
         manager.beginTransaction().hide(dailyOneFragment).commit();
         manager.beginTransaction().hide(noteBookFragment).commit();
 
-        if (position == 0) {
-            toolbar.setTitle(R.string.article);
-            manager.beginTransaction().show(articleFragment).commit();
-            navigationView.setCheckedItem(R.id.nav_article);
-        } else if (position == 1) {
+       if (position == 0) {
             manager.beginTransaction().show(translateFragment).commit();
             toolbar.setTitle(R.string.translate);
             navigationView.setCheckedItem(R.id.nav_translate);
-        }else if (position == 2) {
+        }else if (position == 1) {
             toolbar.setTitle(R.string.daily_one);
             manager.beginTransaction().show(dailyOneFragment).commit();
             navigationView.setCheckedItem(R.id.nav_daily);
-        } else if (position == 3) {
+        } else if (position == 2) {
             toolbar.setTitle(R.string.notebook);
             manager.beginTransaction().show(noteBookFragment).commit();
             navigationView.setCheckedItem(R.id.nav_notebook);
