@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.transition.Explode;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,11 +27,14 @@ import com.bumptech.glide.Glide;
 import com.wjc.simpletranslate.BaseActivity;
 import com.wjc.simpletranslate.MyApplication;
 import com.wjc.simpletranslate.R;
+import com.wjc.simpletranslate.model.DailyPic;
 import com.wjc.simpletranslate.search.SearchActivity;
 import com.wjc.simpletranslate.translate.TranslateFragment;
 import com.wjc.simpletranslate.translate.TranslatePresenter;
 import com.wjc.simpletranslate.util.ActivityCollectorUtil;
 import com.wjc.simpletranslate.util.HttpUtil;
+
+import org.litepal.tablemanager.Connector;
 
 import java.io.IOException;
 
@@ -63,9 +67,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
+        Connector.getDatabase();
         prefs= PreferenceManager.getDefaultSharedPreferences(this);
 
         initViews();
@@ -152,6 +154,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         String bingPic=prefs.getString("bing_pic",null);
         if(bingPic!=null){
             Glide.with(this).load(bingPic).placeholder(R.drawable.nav_header).into(header_day_pic);
+            Log.e("bingPic"," "+bingPic);
+//            DailyPic dailyPic=new DailyPic();
+//            dailyPic.setPicUrl();
         }else {
             loadingPic();
         }
@@ -171,6 +176,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit();
                 editor.putString("bing_pic",bing_pic);
                 editor.apply();
+
+                //将响应地址存到数据库
+                DailyPic dailyPic=new DailyPic();
+                dailyPic.setPicUrl(bing_pic);
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

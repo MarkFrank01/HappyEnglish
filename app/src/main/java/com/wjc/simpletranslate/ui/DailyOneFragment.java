@@ -3,12 +3,14 @@ package com.wjc.simpletranslate.ui;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +24,25 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.wjc.simpletranslate.MyApplication;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.constant.Constants;
 import com.wjc.simpletranslate.db.DBUtil;
 import com.wjc.simpletranslate.db.NotebookDatabaseHelper;
+import com.wjc.simpletranslate.model.DailyOneItem;
+import com.wjc.simpletranslate.util.HttpUtil;
 
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+
+import okhttp3.Call;
+import okhttp3.Callback;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -48,11 +61,15 @@ public class DailyOneFragment extends Fragment {
     private ImageView ivCopy;
     private ImageView ivShare;
 
+    private Context context;
+
     private Boolean isMarked = false;
 
     private NotebookDatabaseHelper dbHelper;
 
     private String imageUrl = null;
+    private String content = null;
+    private String note = null;
 
     public DailyOneFragment(){
 
@@ -64,6 +81,7 @@ public class DailyOneFragment extends Fragment {
 
         queue = Volley.newRequestQueue(getActivity().getApplicationContext());
         dbHelper = new NotebookDatabaseHelper(getActivity(),"MyStore.db",null,1);
+        context=MyApplication.getContext();
     }
 
     @Nullable
@@ -139,13 +157,18 @@ public class DailyOneFragment extends Fragment {
 
     }
 
+
     private void requestData(){
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, Constants.DAILY_SENTENCE, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try {
+                    DailyOneItem dailyOneItem=new DailyOneItem();
+
 
                     imageUrl = jsonObject.getString("picture2");
+                    content = jsonObject.getString("content");
+                    note = jsonObject.getString("note");
 
                     Glide.with(getActivity())
                             .load(imageUrl)
@@ -153,8 +176,10 @@ public class DailyOneFragment extends Fragment {
                             .centerCrop()
                             .into(imageViewMain);
 
-                    textViewEng.setText(jsonObject.getString("content"));
-                    textViewChi.setText(jsonObject.getString("note"));
+//                    textViewEng.setText(jsonObject.getString("content"));
+//                    textViewChi.setText(jsonObject.getString("note"));
+                    textViewEng.setText(content);
+                    textViewChi.setText(note);
 
                     if (DBUtil.queryIfItemExist(dbHelper,textViewEng.getText().toString())){
                         ivStar.setImageResource(R.drawable.ic_grade_white_24dp);
@@ -163,6 +188,11 @@ public class DailyOneFragment extends Fragment {
                         ivStar.setImageResource(R.drawable.ic_star_border_white_24dp);
                         isMarked = false;
                     }
+
+                    dailyOneItem.setImgUrl(imageUrl);
+                    dailyOneItem.setContent(content);
+                    dailyOneItem.setNote(note);
+                    Log.e("dateline",jsonObject.getString("dateline"));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
