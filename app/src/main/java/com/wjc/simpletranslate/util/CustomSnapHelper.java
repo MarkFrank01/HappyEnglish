@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * Created by loonggg on 2017/2/6.
+ * Created by Administrator on 2017/5/7.
  */
 
 public class CustomSnapHelper extends LinearSnapHelper {
@@ -43,10 +43,12 @@ public class CustomSnapHelper extends LinearSnapHelper {
             if (firstChild == RecyclerView.NO_POSITION) {
                 return null;
             }
+/*
             //这行的作用是如果是最后一个，翻到最后一条，解决显示不全的问题
             if (lastChild == layoutManager.getItemCount() - 1) {
                 return layoutManager.findViewByPosition(lastChild);
             }
+*/
 
             View child = layoutManager.findViewByPosition(firstChild);
             //获取偏左显示的Item

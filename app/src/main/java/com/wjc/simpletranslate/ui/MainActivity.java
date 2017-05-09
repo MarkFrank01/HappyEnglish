@@ -14,7 +14,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
-import android.transition.Explode;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -27,6 +26,8 @@ import com.bumptech.glide.Glide;
 import com.wjc.simpletranslate.BaseActivity;
 import com.wjc.simpletranslate.MyApplication;
 import com.wjc.simpletranslate.R;
+import com.wjc.simpletranslate.dailyone.DailyOnePresenter;
+import com.wjc.simpletranslate.dailyone.DailyoneFragment;
 import com.wjc.simpletranslate.model.DailyPic;
 import com.wjc.simpletranslate.search.SearchActivity;
 import com.wjc.simpletranslate.translate.TranslateFragment;
@@ -34,9 +35,11 @@ import com.wjc.simpletranslate.translate.TranslatePresenter;
 import com.wjc.simpletranslate.util.ActivityCollectorUtil;
 import com.wjc.simpletranslate.util.HttpUtil;
 
+import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -50,10 +53,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private ImageView header_day_pic;
 
     private TranslateFragment translateFragment;
-    private DailyOneFragment dailyOneFragment;
+    private DailyoneFragment dailyOneFragment;
     private NoteBookFragment noteBookFragment;
 
     private TranslatePresenter translatePresenter;
+    private DailyOnePresenter dailyOnePresenter;
 
     private static final String ACTION_DAILY_ONE = "com.wjc.simpletranslate.dailyone";
     private static final String ACTION_NOTEBOOK = "com.wjc.simpletranslate.notebook";
@@ -75,17 +79,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (savedInstanceState != null) {
             FragmentManager manager = getSupportFragmentManager();
             translateFragment = (TranslateFragment) manager.getFragment(savedInstanceState, "translateFragment");
-            dailyOneFragment = (DailyOneFragment) manager.getFragment(savedInstanceState, "dailyOneFragment");
+            dailyOneFragment = (DailyoneFragment) manager.getFragment(savedInstanceState, "dailyOneFragment");
             noteBookFragment = (NoteBookFragment) manager.getFragment(savedInstanceState, "noteBookFragment");
 
         } else {
             translateFragment = new TranslateFragment();
-            dailyOneFragment = new DailyOneFragment();
+            dailyOneFragment = new DailyoneFragment();
             noteBookFragment = new NoteBookFragment();
         }
 
         translatePresenter=new TranslatePresenter(MyApplication.getContext(),translateFragment);
-
+        dailyOnePresenter=new DailyOnePresenter(MyApplication.getContext(),dailyOneFragment);
 
         FragmentManager manager = getSupportFragmentManager();
 
@@ -155,8 +159,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if(bingPic!=null){
             Glide.with(this).load(bingPic).placeholder(R.drawable.nav_header).into(header_day_pic);
             Log.e("bingPic"," "+bingPic);
+
 //            DailyPic dailyPic=new DailyPic();
 //            dailyPic.setPicUrl();
+            List<DailyPic> Photos= DataSupport.findAll(DailyPic.class);
+            int i=0;
+            for (DailyPic Photo:Photos){
+                i++;
+                Log.e("dailyPic",i+" "+Photo.getPicUrl());
+            }
         }else {
             loadingPic();
         }
@@ -177,9 +188,23 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 editor.putString("bing_pic",bing_pic);
                 editor.apply();
 
-                //将响应地址存到数据库
-                DailyPic dailyPic=new DailyPic();
-                dailyPic.setPicUrl(bing_pic);
+
+                List<DailyPic> isSavePic=DataSupport.where("PicUrl = ?",bing_pic).find(DailyPic.class);
+                boolean Save=isSavePic.isEmpty();
+                if(Save){
+                    //将响应地址存到数据库
+                    DailyPic dailyPic=new DailyPic();
+                    dailyPic.setPicUrl(bing_pic);
+                    dailyPic.save();
+                    //
+                    List<DailyPic> Photos= DataSupport.findAll(DailyPic.class);
+                    int i=0;
+                    for (DailyPic Photo:Photos){
+                        i++;
+                        Log.e("dailyPic",i+" "+Photo.getPicUrl());
+                    }
+                }
+
 
                 runOnUiThread(new Runnable() {
                     @Override
