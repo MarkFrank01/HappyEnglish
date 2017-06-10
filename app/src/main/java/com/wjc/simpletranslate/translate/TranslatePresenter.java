@@ -1,6 +1,7 @@
 package com.wjc.simpletranslate.translate;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -60,34 +61,31 @@ public class TranslatePresenter implements TranslateContract.Presenter {
         } else if (length==0||isNull==true) {
             view.nullInput();
         } else {
-            sendReq(in);
+            sendReq1(in);
         }
     }
 
-
-    @Override
-    public void sendReq(String in) {
+    public void sendReq1(String in){
         queue=view.initQueue();
+
         dbHelper=view.initdbHelper();
-//        progressBar.setVisibility(View.VISIBLE);
-//        viewResult.setVisibility(View.INVISIBLE);
+
         view.hideResult();
 
-/*        // 监听输入面板的情况，如果激活则隐藏
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm.isActive()){
-            imm.hideSoftInputFromWindow(button.getWindowToken(),0);
-        }*/
+        view.hidePanels();
 
         in = inputFormat(in);
 
         String url = Constants.BING_BASE + "?Word=" + in + "&Samples=";
 
-        if (showSamples) {
-            url += "true";
-        } else {
-            url += "false";
-        }
+//        if (showSamples) {
+//            url += "true";
+//        } else {
+//            url += "false";
+//        }
+
+
+        url += "true";
 
         StringRequest request = new StringRequest(Request.Method.GET,
                 url,
@@ -104,13 +102,13 @@ public class TranslatePresenter implements TranslateContract.Presenter {
 
                                 result = model.getWord() + "\n";
 
-                                if (DBUtil.queryIfItemExist(dbHelper, model.getWord())) {
-                                    view.isCollect();
-                                    isMarked = true;
-                                } else {
-                                    view.noCollect();
-                                    isMarked = false;
-                                }
+//                                if (DBUtil.queryIfItemExist(dbHelper, model.getWord())) {
+//                                    imageViewMark.setImageResource(R.drawable.ic_grade_white_24dp);
+//                                    isMarked = true;
+//                                } else {
+//                                    imageViewMark.setImageResource(R.drawable.ic_star_border_white_24dp);
+//                                    isMarked = false;
+//                                }
 
                                 if (model.getPronunciation() != null) {
                                     BingModel.Pronunciation p = model.getPronunciation();
@@ -122,6 +120,7 @@ public class TranslatePresenter implements TranslateContract.Presenter {
                                 }
 
                                 result = result.substring(0, result.length() - 1);
+
 
                                 if (model.getSams() != null && model.getSams().size() != 0) {
 
@@ -135,23 +134,11 @@ public class TranslatePresenter implements TranslateContract.Presenter {
                                         samples.add(sample);
                                     }
 
-//                                    if (adapter == null) {
-//                                        adapter = new SampleAdapter(getActivity(), samples);
-//                                        recyclerView.setAdapter(adapter);
-//                                    } else {
-//                                        adapter.notifyDataSetChanged();
-//                                    }
-                                    Log.e("samples",samples.size()+"");
                                     view.setAdapter(samples);
                                 }
 
-//                                progressBar.setVisibility(View.INVISIBLE);
-//                                viewResult.setVisibility(View.VISIBLE);
-//                                textViewResult.setText(result);
                                 view.showResult();
                                 view.TransResult(result);
-
-
                             }
                         } catch (JsonSyntaxException ex) {
                             view.showTransError();
@@ -170,6 +157,7 @@ public class TranslatePresenter implements TranslateContract.Presenter {
 
         queue.add(request);
     }
+
 
     @Override
     public String inputFormat(String in) {

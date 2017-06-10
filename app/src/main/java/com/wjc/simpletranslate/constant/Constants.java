@@ -12,6 +12,8 @@ public class Constants {
     public static final String YOUDAO_URL = "http://fanyi.youdao.com/openapi.do?keyfrom=marktonytranslator";
 
     // 每日词图地址
+    //可通过日期访问历史记录
+    //http://open.iciba.com/dsapi/?date=20170520
     public static final String DAILY_SENTENCE = "http://open.iciba.com/dsapi";
 
     /**

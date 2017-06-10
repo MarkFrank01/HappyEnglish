@@ -48,6 +48,7 @@ public class ClipboardService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        Toast.makeText(ClipboardService.this, "服务开启ing", Toast.LENGTH_SHORT).show();
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         manager.addPrimaryClipChangedListener(listener);
 
@@ -122,7 +123,7 @@ public class ClipboardService extends Service {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Toast.makeText(ClipboardService.this, R.string.network_error,Toast.LENGTH_SHORT).show();
+//                Toast.makeText(ClipboardService.this, R.string.network_error,Toast.LENGTH_SHORT).show();
             }
         });
 

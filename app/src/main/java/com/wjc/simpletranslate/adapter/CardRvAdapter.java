@@ -26,7 +26,7 @@ public class CardRvAdapter extends RecyclerView.Adapter<CardRvAdapter.ItemViewHo
     public CardRvAdapter(Context context, List<DailyOneItem> list) {
         this.context = context;
         this.list = list;
-        Log.e("S",this.list.size()+"");
+        Log.e("S", this.list.size() + "");
     }
 
     @Override
@@ -37,9 +37,10 @@ public class CardRvAdapter extends RecyclerView.Adapter<CardRvAdapter.ItemViewHo
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        DailyOneItem dailyOneItem=list.get(position);
+        DailyOneItem dailyOneItem = list.get(position);
 //        Glide.with(context).load(list.get(position).getImgUrl()).into(holder.iv);
         Glide.with(context).load(dailyOneItem.getImgUrl()).into(holder.iv);
+        holder.date.setText(dailyOneItem.getDateline());
         holder.Eng.setText(dailyOneItem.getContent());
         holder.Chi.setText(dailyOneItem.getNote());
     }
@@ -51,6 +52,7 @@ public class CardRvAdapter extends RecyclerView.Adapter<CardRvAdapter.ItemViewHo
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
         private ImageView iv;
+        private TextView date;
         private TextView Eng;
         private TextView Chi;
 
@@ -58,8 +60,9 @@ public class CardRvAdapter extends RecyclerView.Adapter<CardRvAdapter.ItemViewHo
         public ItemViewHolder(View itemView) {
             super(itemView);
             iv = (ImageView) itemView.findViewById(R.id.image_view_daily);
-            Eng= (TextView) itemView.findViewById(R.id.text_view_eng);
-            Chi= (TextView) itemView.findViewById(R.id.text_view_chi);
+            date = (TextView) itemView.findViewById(R.id.date);
+            Eng = (TextView) itemView.findViewById(R.id.text_view_eng);
+            Chi = (TextView) itemView.findViewById(R.id.text_view_chi);
         }
     }
 }

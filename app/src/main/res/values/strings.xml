@@ -49,7 +49,7 @@
     <string name="daily_sen_text_1">Hello,world</string>
     <string name="daily_sen_text_2">你好，世界</string>
     <string name="no_note">没有笔记</string>
-    <string name="network_error">网络出问题啦</string>
+    <string name="network_error1">网络出问题啦</string>
 
     <string name="basic_settings">基本设置</string>
     <string name="start_tap_translate">启用点按翻译功能</string>

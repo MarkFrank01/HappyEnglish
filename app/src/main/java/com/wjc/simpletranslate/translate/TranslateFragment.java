@@ -3,6 +3,7 @@ package com.wjc.simpletranslate.translate;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -30,12 +32,14 @@ import com.android.volley.toolbox.Volley;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.adapter.SampleAdapter;
 import com.wjc.simpletranslate.db.DBUtil;
+import com.wjc.simpletranslate.db.MyDBUtil;
 import com.wjc.simpletranslate.db.NotebookDatabaseHelper;
 import com.wjc.simpletranslate.model.BingModel;
 
 import java.util.ArrayList;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Administrator on 2017/5/1.
@@ -86,6 +90,15 @@ public class TranslateFragment extends Fragment
             @Override
             public void onClick(View v) {
                 presenter.readyTrans(editText.getText().length(),editText.getText() == null ,editText.getText().toString());
+
+                if(MyDBUtil.queryIfItemExist(editText.getText().toString())){
+                    imageViewMark.setImageResource(R.drawable.ic_grade_white_24dp);
+                    isMarked=true;
+                }else {
+                    imageViewMark.setImageResource(R.drawable.ic_star_border_white_24dp);
+                    isMarked=false;
+                }
+
             }
         });
 
@@ -118,7 +131,7 @@ public class TranslateFragment extends Fragment
                 if (completeWithEnter) {
                     if (count == 1 && s.charAt(start) == '\n') {
                         editText.getText().replace(start, start + 1, "");
-                        presenter.sendReq(editText.getEditableText().toString());
+                        presenter.sendReq1(editText.getEditableText().toString());
                     }
                 }
 
@@ -129,6 +142,7 @@ public class TranslateFragment extends Fragment
 
             }
         });
+
 
         imageViewMark.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,20 +155,21 @@ public class TranslateFragment extends Fragment
                             .show();
                     isMarked = true;
 
-                    ContentValues values = new ContentValues();
-                    values.put("input",model.getWord());
-                    values.put("output",result);
-                    DBUtil.insertValue(dbHelper,values);
-
-                    values.clear();
+//                    ContentValues values = new ContentValues();
+//                    values.put("input",model.getWord());
+//                    values.put("output",result);
+//                    DBUtil.insertValue(dbHelper,values);
+                    MyDBUtil.insertValue(editText.getText().toString(),result);
+//                    MyDBUtil.queryIfItemExist(editText.getText().toString());
+//                    values.clear();
 
                 } else {
                     imageViewMark.setImageResource(R.drawable.ic_star_border_white_24dp);
                     Snackbar.make(button,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT)
                             .show();
                     isMarked = false;
-
-                    DBUtil.deleteValue(dbHelper, model.getWord());
+                    MyDBUtil.deleteValue(editText.getText().toString());
+//                    DBUtil.deleteValue(dbHelper, model.getWord());
                 }
 
             }
@@ -244,6 +259,7 @@ public class TranslateFragment extends Fragment
     @Override
     public void TransResult(String result) {
         textViewResult.setText(result);
+        this.result=result;
     }
 
     @Override
@@ -261,6 +277,15 @@ public class TranslateFragment extends Fragment
     @Override
     public void hideProgress() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void hidePanels() {
+        // 监听输入面板的情况，如果激活则隐藏
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive()){
+            imm.hideSoftInputFromWindow(button.getWindowToken(),0);
+        }
     }
 
     @Override
@@ -287,8 +312,8 @@ public class TranslateFragment extends Fragment
 
     @Override
     public void setAdapter(ArrayList<BingModel.Sample> samples) {
+        Log.e("samples1",samples.size()+"");
         if (adapter == null) {
-            Log.e("samples1",samples.size()+"");
             adapter = new SampleAdapter(getActivity(), samples);
             recyclerView.setAdapter(adapter);
             Log.e("adapter","is null");

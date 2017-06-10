@@ -1,1 +1,1 @@
-include ':app', 'paperplane', ':paperplane'
+include ':app', 'paperplane', ':paperplane', ':trans'

@@ -33,6 +33,8 @@ public class TranslateContract {
 
         void hideProgress();
 
+        void hidePanels();
+
         void showNoNetwork();
 
         void showTransError();
@@ -51,7 +53,9 @@ public class TranslateContract {
 
         void readyTrans(int length,boolean isNull,String in);
 
-        void sendReq(String in);
+//        void sendReq(String in);
+
+        void sendReq1(String in);
 
         String inputFormat(String in);
     }
