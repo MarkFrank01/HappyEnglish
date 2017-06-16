@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/6/10.
  */
-public class MyDBUtil {
+public class NoteBookDBUtil {
 
     public static boolean queryIfItemExist(String queryString){
         List<NotebookMark> notebookMark= DataSupport.where("input = ?",queryString).find(NotebookMark.class);
@@ -27,7 +27,8 @@ public class MyDBUtil {
     public static void insertValue(String input,String output){
         NotebookMark notebookMark=new NotebookMark();
         notebookMark.setInput(input);
-        notebookMark.setOutput(output);
+        String output1=output.substring(input.length()+1,output.length());
+        notebookMark.setOutput(output1);
         notebookMark.save();
         Log.e("Add","A");
     }

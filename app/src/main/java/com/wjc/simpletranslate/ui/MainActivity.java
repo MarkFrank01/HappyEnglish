@@ -201,7 +201,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     int i=0;
                     for (DailyPic Photo:Photos){
                         i++;
-                        Log.e("dailyPic",i+" "+Photo.getPicUrl());
+                        Log.e("dailyPic1",i+" "+Photo.getPicUrl());
                     }
                 }
 

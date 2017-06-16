@@ -1,20 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/dailyone"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+    <!--<ImageView-->
+        <!--android:id="@+id/blurView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="#3f000000"-->
+        <!--android:scaleType="centerCrop"/>-->
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
+    <!--<com.wjc.simpletranslate.util.DailyOneUtil.SpeedRecyclerView-->
+        <!--android:id="@+id/dailyone"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_marginTop="30dp"-->
+        <!--android:layout_marginBottom="30dp"/>-->
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_mode_edit_white_24dp"/>
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        card_view:cardBackgroundColor="@color/colorPrimary"
+        card_view:cardCornerRadius="2dp">
+
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal">
+                 <ImageView
+                     android:id="@+id/more_daily"
+                     android:layout_width="0dp"
+                     android:layout_weight="1"
+                     android:layout_height="match_parent"
+                     android:src="@drawable/ic_today_black_24dp"
+                     android:layout_margin="5dp"/>
+                <TextView
+                    android:id="@+id/date"
+                    android:text="2017-05-20"
+                    android:textSize="20sp"
+                    android:textColor="@android:color/white"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+                    android:layout_height="match_parent"/>
+                    <ImageView
+                        android:id="@+id/choose_daily"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_expand_more_black_24dp"/>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/Today_daily"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/nav_header"/>
+
+                <TextView
+                    android:id="@+id/text_view_eng"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:text="@string/daily_sen_text_1"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/body1_primary"/>
+
+                <TextView
+                    android:id="@+id/text_view_chi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:text="@string/daily_sen_text_2"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/body1_primary"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/image_view_mark_star"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_star_border_white_24dp"/>
+
+                    <ImageView
+                        android:id="@+id/image_view_copy"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_content_copy_white_24dp"/>
+
+                    <ImageView
+                        android:id="@+id/image_view_share"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_share_white_24dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </android.support.v4.widget.NestedScrollView>
+
+    </android.support.v7.widget.CardView>
+
+
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/fab"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom|end"-->
+        <!--android:layout_margin="@dimen/fab_margin"-->
+        <!--card_view:rippleColor="#000"-->
+        <!--/>-->
+
+        <!--android:src="@drawable/ic_mode_edit_white_24dp"-->
 </android.support.design.widget.CoordinatorLayout>

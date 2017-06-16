@@ -2,7 +2,6 @@ package com.wjc.simpletranslate.translate;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,15 +30,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.adapter.SampleAdapter;
-import com.wjc.simpletranslate.db.DBUtil;
-import com.wjc.simpletranslate.db.MyDBUtil;
+import com.wjc.simpletranslate.db.NoteBookDBUtil;
 import com.wjc.simpletranslate.db.NotebookDatabaseHelper;
 import com.wjc.simpletranslate.model.BingModel;
 
 import java.util.ArrayList;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Administrator on 2017/5/1.
@@ -91,7 +88,7 @@ public class TranslateFragment extends Fragment
             public void onClick(View v) {
                 presenter.readyTrans(editText.getText().length(),editText.getText() == null ,editText.getText().toString());
 
-                if(MyDBUtil.queryIfItemExist(editText.getText().toString())){
+                if(NoteBookDBUtil.queryIfItemExist(editText.getText().toString())){
                     imageViewMark.setImageResource(R.drawable.ic_grade_white_24dp);
                     isMarked=true;
                 }else {
@@ -159,8 +156,7 @@ public class TranslateFragment extends Fragment
 //                    values.put("input",model.getWord());
 //                    values.put("output",result);
 //                    DBUtil.insertValue(dbHelper,values);
-                    MyDBUtil.insertValue(editText.getText().toString(),result);
-//                    MyDBUtil.queryIfItemExist(editText.getText().toString());
+                    NoteBookDBUtil.insertValue(editText.getText().toString(),result);
 //                    values.clear();
 
                 } else {
@@ -168,7 +164,7 @@ public class TranslateFragment extends Fragment
                     Snackbar.make(button,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT)
                             .show();
                     isMarked = false;
-                    MyDBUtil.deleteValue(editText.getText().toString());
+                    NoteBookDBUtil.deleteValue(editText.getText().toString());
 //                    DBUtil.deleteValue(dbHelper, model.getWord());
                 }
 

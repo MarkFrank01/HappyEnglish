@@ -102,13 +102,6 @@ public class TranslatePresenter implements TranslateContract.Presenter {
 
                                 result = model.getWord() + "\n";
 
-//                                if (DBUtil.queryIfItemExist(dbHelper, model.getWord())) {
-//                                    imageViewMark.setImageResource(R.drawable.ic_grade_white_24dp);
-//                                    isMarked = true;
-//                                } else {
-//                                    imageViewMark.setImageResource(R.drawable.ic_star_border_white_24dp);
-//                                    isMarked = false;
-//                                }
 
                                 if (model.getPronunciation() != null) {
                                     BingModel.Pronunciation p = model.getPronunciation();

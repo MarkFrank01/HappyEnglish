@@ -74,9 +74,13 @@
             android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
             android:label="@string/settings"
             android:theme="@style/AppTheme.NoActionBar"/>
+
         <activity android:name=".BaseActivity">
         </activity>
 
+        <activity android:name=".dailyone.TestDaily.TestDailyActivity"
+                  android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>
