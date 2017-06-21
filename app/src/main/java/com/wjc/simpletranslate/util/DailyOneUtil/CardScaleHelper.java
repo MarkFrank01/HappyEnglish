@@ -68,7 +68,7 @@ public class CardScaleHelper {
                 mCardGalleryWidth = mRecyclerView.getWidth();
                 mCardWidth = mCardGalleryWidth - ScreenUtil.dip2px(mContext, 2 * (mPagePadding + mShowLeftCardWidth));
                 mOnePageWidth = mCardWidth;
-                mRecyclerView.smoothScrollToPosition(mCurrentItemPos);
+                mRecyclerView.smoothScrollToPosition(0);
                 onScrolledChangedCallback();
             }
         });

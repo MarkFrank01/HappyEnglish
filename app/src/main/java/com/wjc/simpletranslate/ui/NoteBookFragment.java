@@ -2,11 +2,8 @@ package com.wjc.simpletranslate.ui;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +21,16 @@ import android.widget.TextView;
 
 
 import com.wjc.simpletranslate.R;
-import com.wjc.simpletranslate.adapter.NotebookMarkItemAdapter;
-import com.wjc.simpletranslate.db.DBUtil;
+import com.wjc.simpletranslate.adapter.NotebookAdapter;
+import com.wjc.simpletranslate.db.NoteBookDBUtil;
 import com.wjc.simpletranslate.db.NotebookDatabaseHelper;
 import com.wjc.simpletranslate.interfaze.OnRecyclerViewOnClickListener;
-import com.wjc.simpletranslate.model.NotebookMarkItem;
+import com.wjc.simpletranslate.model.NotebookMark;
+
+import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -42,8 +42,12 @@ public class NoteBookFragment extends Fragment {
 
     private RecyclerView recyclerViewNotebook;
     private FloatingActionButton fab;
-    private ArrayList<NotebookMarkItem> list = new ArrayList<NotebookMarkItem>();
-    private NotebookMarkItemAdapter adapter;
+
+//    private ArrayList<NotebookMarkItem> list = new ArrayList<NotebookMarkItem>();
+
+    private List<NotebookMark> notebookMarkList=new ArrayList<>();
+
+    private NotebookAdapter adapter;
     private TextView tvNoNote;
 
     private NotebookDatabaseHelper dbHelper;
@@ -95,17 +99,27 @@ public class NoteBookFragment extends Fragment {
                                 tvNoNote.setVisibility(View.GONE);
                             }
 
-                            NotebookMarkItem item = new NotebookMarkItem(in,out);
+//                            NotebookMarkItem item = new NotebookMarkItem(in,out);
+//
+//                            ContentValues values = new ContentValues();
+//                            values.put("input",in);
+//                            values.put("output",out);
+//
+//                            DBUtil.insertValue(dbHelper,values);
+//
+//                            values.clear();
+//
+//                            list.add(0,item);
+//                            adapter.notifyItemInserted(0);
+//                            recyclerViewNotebook.smoothScrollToPosition(0);
 
-                            ContentValues values = new ContentValues();
-                            values.put("input",in);
-                            values.put("output",out);
+                            NotebookMark notebookMark=new NotebookMark();
+                            notebookMark.setInput(in);
+                            notebookMark.setOutput(out);
+                            notebookMark.save();
 
-                            DBUtil.insertValue(dbHelper,values);
-
-                            values.clear();
-
-                            list.add(0,item);
+                            notebookMark=DataSupport.findLast(NotebookMark.class);
+                            notebookMarkList.add(0,notebookMark);
                             adapter.notifyItemInserted(0);
                             recyclerViewNotebook.smoothScrollToPosition(0);
                         }
@@ -125,88 +139,115 @@ public class NoteBookFragment extends Fragment {
             }
         });
 
-        getDataFromDB();
+        loadData();
 
-        if (list.isEmpty()){
+//        getDataFromDB();
+
+        if (notebookMarkList.isEmpty()){
             tvNoNote.setVisibility(View.VISIBLE);
+        }else {
+            tvNoNote.setVisibility(View.GONE);
+
+            handleResults();
         }
-
-        Collections.reverse(list);
-        adapter = new NotebookMarkItemAdapter(getActivity(),list);
-        recyclerViewNotebook.setAdapter(adapter);
-        adapter.setItemClickListener(new OnRecyclerViewOnClickListener() {
-
-            @Override
-            public void OnItemClick(View view, int position) {
-
-            }
-
-            @Override
-            public void OnSubViewClick(View view, final int position) {
-
-                switch (view.getId()){
-
-                    case R.id.image_view_share:
-
-                        NotebookMarkItem item1 = list.get(position);
-
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_SEND).setType("text/plain");
-                        intent.putExtra(Intent.EXTRA_TEXT,String.valueOf(item1.getInput() + "\n" + item1.getOutput()));
-                        startActivity(Intent.createChooser(intent,getString(R.string.choose_app_to_share)));
-
-                        break;
-
-                    case R.id.image_view_copy:
-
-                        NotebookMarkItem item2 = list.get(position);
-
-                        ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
-                        ClipData clipData = ClipData.newPlainText("text", String.valueOf(item2.getInput() + "\n" + item2.getOutput()));
-                        manager.setPrimaryClip(clipData);
-
-                        Snackbar.make(fab, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
-
-                        break;
-
-                    case R.id.image_view_mark_star:
-
-                        final NotebookMarkItem item3 = list.get(position);
-
-                        DBUtil.deleteValue(dbHelper,item3.getInput());
-
-                        list.remove(position);
-
-                        adapter.notifyItemRemoved(position);
-                        adapter.notifyItemRangeChanged(position,list.size());
-
-                        Snackbar.make(fab, R.string.remove_from_notebook, Snackbar.LENGTH_SHORT)
-                                .setAction(R.string.undo, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        ContentValues values = new ContentValues();
-                                        values.put("input",item3.getInput());
-                                        values.put("output",item3.getOutput());
-
-                                        DBUtil.insertValue(dbHelper,values);
-
-                                        values.clear();
-
-                                        list.add(position,item3);
-                                        adapter.notifyItemInserted(position);
-                                        recyclerViewNotebook.smoothScrollToPosition(position);
-                                    }
-                                }).show();
-
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        });
-
         return view;
+    }
+
+    private void loadData() {
+        notebookMarkList= DataSupport.findAll(NotebookMark.class);
+        Log.e("L1",notebookMarkList.size()+"p");
+    }
+
+
+    private void handleResults() {
+
+//        Collections.reverse(list);
+//        if (adapter == null) {
+//            adapter = new NotebookAdapter(SearchActivity.this,list);
+            adapter = new NotebookAdapter(getActivity(),notebookMarkList);
+            recyclerViewNotebook.setAdapter(adapter);
+            adapter.setItemClickListener(new OnRecyclerViewOnClickListener() {
+
+                @Override
+                public void OnItemClick(View view, int position) {
+
+                }
+
+                @Override
+                public void OnSubViewClick(View view, final int position) {
+
+                    switch (view.getId()){
+
+                        case R.id.image_view_share:
+
+                            NotebookMark item1 = notebookMarkList.get(position);
+
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_SEND).setType("text/plain");
+                            intent.putExtra(Intent.EXTRA_TEXT,String.valueOf(item1.getInput() + "\n" + item1.getOutput()));
+                            startActivity(Intent.createChooser(intent,getString(R.string.choose_app_to_share)));
+
+                            break;
+
+                        case R.id.image_view_copy:
+
+                            NotebookMark item2 = notebookMarkList.get(position);
+
+                            ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+                            ClipData clipData = ClipData.newPlainText("text", String.valueOf(item2.getInput() + "\n" + item2.getOutput()));
+                            manager.setPrimaryClip(clipData);
+
+                            Snackbar.make(recyclerViewNotebook, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
+
+                            break;
+
+                        case R.id.image_view_mark_star:
+
+                            final NotebookMark item3 = notebookMarkList.get(position);
+
+//                            DBUtil.deleteValue(dbHelper,item3.getInput());
+//
+//                            list.remove(position);
+                            NoteBookDBUtil.deleteValue(item3.getInput());
+                            notebookMarkList.remove(position);
+
+
+
+                            adapter.notifyItemRemoved(position);
+                            adapter.notifyItemRangeChanged(position,notebookMarkList.size());
+
+//                            Snackbar.make(recyclerView, R.string.add_to_notebook, Snackbar.LENGTH_LONG)
+//                                    .setAction(R.string.undo, new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View v) {
+////                                            ContentValues values = new ContentValues();
+////                                            values.put("input",item3.getInput());
+////                                            values.put("output",item3.getOutput());
+////
+////                                            DBUtil.insertValue(dbHelper,values);
+////
+////                                            values.clear();
+////
+////                                            list.add(position,item3);
+//                                            NoteBookDBUtil.insertValue(item3.getInput(),item3.getOutput());
+//
+//                                            adapter.notifyItemInserted(position);
+//                                            recyclerView.smoothScrollToPosition(position);
+//
+//                                        }
+//                                    }).show();
+
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            });
+//        } else {
+//            adapter.notifyDataSetChanged();
+//        }
+
     }
 
     private void initViews(View view) {
@@ -220,39 +261,30 @@ public class NoteBookFragment extends Fragment {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        getDataFromDB();
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
-    }
 
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-        getDataFromDB();
-    }
 
-    private void getDataFromDB() {
-        if (list != null) {
-            list.clear();
-        }
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query("notebook",null,null,null,null,null,null);
-        if (cursor.moveToFirst()){
-            do {
-                String in = cursor.getString(cursor.getColumnIndex("input"));
-                String out = cursor.getString(cursor.getColumnIndex("output"));
-
-                NotebookMarkItem item = new NotebookMarkItem(in,out);
-                list.add(item);
-
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-    }
+//    private void getDataFromDB() {
+////        if (list != null) {
+////            list.clear();
+////        }
+//
+//        notebookMarkList= DataSupport.findAll(NotebookMark.class);
+//        Log.e("L1",notebookMarkList.size()+"p");
+//
+////        SQLiteDatabase db = dbHelper.getReadableDatabase();
+////        Cursor cursor = db.query("notebook",null,null,null,null,null,null);
+////        if (cursor.moveToFirst()){
+////            do {
+////                String in = cursor.getString(cursor.getColumnIndex("input"));
+////                String out = cursor.getString(cursor.getColumnIndex("output"));
+////
+////                NotebookMarkItem item = new NotebookMarkItem(in,out);
+////                list.add(item);
+////
+////            } while (cursor.moveToNext());
+////        }
+////
+////        cursor.close();
+//    }
 
 }

@@ -39,16 +39,18 @@ public class NotebookAdapter extends RecyclerView.Adapter<NotebookAdapter.ItemVi
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.notebookMarkList = list;
+        Log.e("MyLength1",notebookMarkList.size()+"p");
     }
 
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.e("MyLength2",notebookMarkList.size()+"p");
         return new ItemViewHolder(inflater.inflate(R.layout.notebook_mark_item,parent,false),mListener);
     }
 
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, final int position) {
-        Log.e("NOTe",notebookMarkList.size()+"");
+        Log.e("MyLength",notebookMarkList.size()+"p");
         NotebookMark item = notebookMarkList.get(position);
         holder.tvOutput.setText(item.getInput() + "\n" + item.getOutput());
     }

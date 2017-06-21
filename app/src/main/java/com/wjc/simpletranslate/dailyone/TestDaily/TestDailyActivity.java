@@ -31,6 +31,7 @@ public class TestDailyActivity extends AppCompatActivity {
 //        setContentView(R.layout.activity_testdaily);
 //    }
     private RecyclerView mRecyclerView;
+    private CardAdapter cardAdapter;
     private ImageView mBlurView;
     private List<Integer> mList = new ArrayList<>();
     private CardScaleHelper mCardScaleHelper = null;
@@ -65,18 +66,28 @@ public class TestDailyActivity extends AppCompatActivity {
             mList.add(R.mipmap.pic6);
         }
 
-        mDailyOneList= DataSupport.findAll(DailyOneItem.class);
+        mDailyOneList= DataSupport.order("id desc").find(DailyOneItem.class);
         Log.e("THESIZE",mDailyOneList.size()+"");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+//        linearLayoutManager.setReverseLayout(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
-        mRecyclerView.setAdapter(new CardAdapter(mList,mDailyOneList,this));
+
+//        mRecyclerView.setAdapter(new CardAdapter(mList,mDailyOneList,this));
+
+        cardAdapter=new CardAdapter(mList,mDailyOneList,this);
+        mRecyclerView.setAdapter(cardAdapter);
+
+
 
         // mRecyclerView绑定scale效果
         mCardScaleHelper = new CardScaleHelper();
         mCardScaleHelper.setCurrentItemPos(2);
         mCardScaleHelper.attachToRecyclerView(mRecyclerView);
+
+//        cardAdapter.notifyItemInserted(0);
+//        mRecyclerView.smoothScrollToPosition(mDailyOneList.size()-1);
 
         initBlurBackground();
     }
