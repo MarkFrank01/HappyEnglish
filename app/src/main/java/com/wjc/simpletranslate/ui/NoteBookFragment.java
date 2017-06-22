@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,14 +46,14 @@ public class NoteBookFragment extends Fragment {
 
 //    private ArrayList<NotebookMarkItem> list = new ArrayList<NotebookMarkItem>();
 
-    private List<NotebookMark> notebookMarkList=new ArrayList<>();
+    private List<NotebookMark> notebookMarkList = new ArrayList<>();
 
     private NotebookAdapter adapter;
     private TextView tvNoNote;
 
     private NotebookDatabaseHelper dbHelper;
 
-    public NoteBookFragment(){
+    public NoteBookFragment() {
 
     }
 
@@ -60,15 +61,17 @@ public class NoteBookFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        dbHelper = new NotebookDatabaseHelper(getActivity(),"MyStore.db",null,1);
+        dbHelper = new NotebookDatabaseHelper(getActivity(), "MyStore.db", null, 1);
     }
 
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_notebook,container,false);
+        View view = inflater.inflate(R.layout.fragment_notebook, container, false);
 
         initViews(view);
+
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +79,7 @@ public class NoteBookFragment extends Fragment {
                 final AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
                 dialog.setTitle(R.string.add_to_notebook);
                 LayoutInflater li = getActivity().getLayoutInflater();
-                final View v = li.inflate(R.layout.add_note,null);
+                final View v = li.inflate(R.layout.add_note, null);
                 dialog.setView(v);
 
                 dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.OK), new DialogInterface.OnClickListener() {
@@ -89,37 +92,23 @@ public class NoteBookFragment extends Fragment {
                         String in = etInput.getText().toString();
                         String out = etOutput.getText().toString();
 
-                        if (in.isEmpty() || out.isEmpty()){
+                        if (in.isEmpty() || out.isEmpty()) {
 
                             Snackbar.make(fab, R.string.no_input, Snackbar.LENGTH_SHORT).show();
 
                         } else {
 
-                            if (tvNoNote.getVisibility() == View.VISIBLE){
+                            if (tvNoNote.getVisibility() == View.VISIBLE) {
                                 tvNoNote.setVisibility(View.GONE);
                             }
 
-//                            NotebookMarkItem item = new NotebookMarkItem(in,out);
-//
-//                            ContentValues values = new ContentValues();
-//                            values.put("input",in);
-//                            values.put("output",out);
-//
-//                            DBUtil.insertValue(dbHelper,values);
-//
-//                            values.clear();
-//
-//                            list.add(0,item);
-//                            adapter.notifyItemInserted(0);
-//                            recyclerViewNotebook.smoothScrollToPosition(0);
-
-                            NotebookMark notebookMark=new NotebookMark();
+                            NotebookMark notebookMark = new NotebookMark();
                             notebookMark.setInput(in);
                             notebookMark.setOutput(out);
                             notebookMark.save();
 
-                            notebookMark=DataSupport.findLast(NotebookMark.class);
-                            notebookMarkList.add(0,notebookMark);
+                            notebookMark = DataSupport.findLast(NotebookMark.class);
+                            notebookMarkList.add(0, notebookMark);
                             adapter.notifyItemInserted(0);
                             recyclerViewNotebook.smoothScrollToPosition(0);
                         }
@@ -128,7 +117,7 @@ public class NoteBookFragment extends Fragment {
                     }
                 });
 
-                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel) , new DialogInterface.OnClickListener() {
+                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -141,81 +130,82 @@ public class NoteBookFragment extends Fragment {
 
         loadData();
 
-//        getDataFromDB();
+        isData();
+        handleResults();
 
-        if (notebookMarkList.isEmpty()){
-            tvNoNote.setVisibility(View.VISIBLE);
-        }else {
-            tvNoNote.setVisibility(View.GONE);
-
-            handleResults();
-        }
         return view;
     }
 
+    private void isData() {
+        if (notebookMarkList.isEmpty()) {
+            tvNoNote.setVisibility(View.VISIBLE);
+        } else {
+            tvNoNote.setVisibility(View.GONE);
+        }
+    }
+
     private void loadData() {
-        notebookMarkList= DataSupport.findAll(NotebookMark.class);
-        Log.e("L1",notebookMarkList.size()+"p");
+        notebookMarkList = DataSupport.findAll(NotebookMark.class);
+        Log.e("L1", notebookMarkList.size() + "p");
     }
 
 
     private void handleResults() {
 
-//        Collections.reverse(list);
-//        if (adapter == null) {
-//            adapter = new NotebookAdapter(SearchActivity.this,list);
-            adapter = new NotebookAdapter(getActivity(),notebookMarkList);
-            recyclerViewNotebook.setAdapter(adapter);
-            adapter.setItemClickListener(new OnRecyclerViewOnClickListener() {
 
-                @Override
-                public void OnItemClick(View view, int position) {
+        adapter = new NotebookAdapter(getActivity(), notebookMarkList);
+        recyclerViewNotebook.setAdapter(adapter);
+        adapter.setItemClickListener(new OnRecyclerViewOnClickListener() {
 
-                }
 
-                @Override
-                public void OnSubViewClick(View view, final int position) {
+            @Override
+            public void OnItemClick(View view, int position) {
 
-                    switch (view.getId()){
+            }
 
-                        case R.id.image_view_share:
+            @Override
+            public void OnSubViewClick(View view, final int position) {
 
-                            NotebookMark item1 = notebookMarkList.get(position);
+                switch (view.getId()) {
 
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_SEND).setType("text/plain");
-                            intent.putExtra(Intent.EXTRA_TEXT,String.valueOf(item1.getInput() + "\n" + item1.getOutput()));
-                            startActivity(Intent.createChooser(intent,getString(R.string.choose_app_to_share)));
+                    case R.id.image_view_share:
 
-                            break;
+                        NotebookMark item1 = notebookMarkList.get(position);
 
-                        case R.id.image_view_copy:
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_SEND).setType("text/plain");
+                        intent.putExtra(Intent.EXTRA_TEXT, String.valueOf(item1.getInput() + "\n" + item1.getOutput()));
+                        startActivity(Intent.createChooser(intent, getString(R.string.choose_app_to_share)));
 
-                            NotebookMark item2 = notebookMarkList.get(position);
+                        break;
 
-                            ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
-                            ClipData clipData = ClipData.newPlainText("text", String.valueOf(item2.getInput() + "\n" + item2.getOutput()));
-                            manager.setPrimaryClip(clipData);
+                    case R.id.image_view_copy:
 
-                            Snackbar.make(recyclerViewNotebook, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
+                        NotebookMark item2 = notebookMarkList.get(position);
 
-                            break;
+                        ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+                        ClipData clipData = ClipData.newPlainText("text", String.valueOf(item2.getInput() + "\n" + item2.getOutput()));
+                        manager.setPrimaryClip(clipData);
 
-                        case R.id.image_view_mark_star:
+                        Snackbar.make(recyclerViewNotebook, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
 
-                            final NotebookMark item3 = notebookMarkList.get(position);
+                        break;
+
+                    case R.id.image_view_mark_star:
+
+
+                        final NotebookMark item3 = notebookMarkList.get(position);
 
 //                            DBUtil.deleteValue(dbHelper,item3.getInput());
 //
 //                            list.remove(position);
-                            NoteBookDBUtil.deleteValue(item3.getInput());
-                            notebookMarkList.remove(position);
+                        NoteBookDBUtil.deleteValue(item3.getInput());
+                        notebookMarkList.remove(position);
 
 
-
-                            adapter.notifyItemRemoved(position);
-                            adapter.notifyItemRangeChanged(position,notebookMarkList.size());
-
+                        adapter.notifyItemRemoved(position);
+                        adapter.notifyItemRangeChanged(position, notebookMarkList.size());
+                        isData();
 //                            Snackbar.make(recyclerView, R.string.add_to_notebook, Snackbar.LENGTH_LONG)
 //                                    .setAction(R.string.undo, new View.OnClickListener() {
 //                                        @Override
@@ -237,16 +227,13 @@ public class NoteBookFragment extends Fragment {
 //                                        }
 //                                    }).show();
 
-                            break;
+                        break;
 
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
-            });
-//        } else {
-//            adapter.notifyDataSetChanged();
-//        }
+            }
+        });
 
     }
 
@@ -261,30 +248,5 @@ public class NoteBookFragment extends Fragment {
 
     }
 
-
-
-//    private void getDataFromDB() {
-////        if (list != null) {
-////            list.clear();
-////        }
-//
-//        notebookMarkList= DataSupport.findAll(NotebookMark.class);
-//        Log.e("L1",notebookMarkList.size()+"p");
-//
-////        SQLiteDatabase db = dbHelper.getReadableDatabase();
-////        Cursor cursor = db.query("notebook",null,null,null,null,null,null);
-////        if (cursor.moveToFirst()){
-////            do {
-////                String in = cursor.getString(cursor.getColumnIndex("input"));
-////                String out = cursor.getString(cursor.getColumnIndex("output"));
-////
-////                NotebookMarkItem item = new NotebookMarkItem(in,out);
-////                list.add(item);
-////
-////            } while (cursor.moveToNext());
-////        }
-////
-////        cursor.close();
-//    }
 
 }

@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.adapter.CardRvAdapter;
 import com.wjc.simpletranslate.dailyone.TestDaily.TestDailyActivity;
+import com.wjc.simpletranslate.db.NoteBookDBUtil;
 import com.wjc.simpletranslate.model.DailyOneItem;
 import com.wjc.simpletranslate.util.CustomSnapHelper;
 import com.wjc.simpletranslate.util.DailyOneUtil.BlurBitmapUtils;
@@ -47,6 +49,9 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
     private ImageView Today_daily;
     private ImageView more_daily;
     private ImageView choose_daily;
+    private ImageView image_view_mark_star;
+    private ImageView image_view_copy;
+    private ImageView image_view_share;
     private TextView date;
     private TextView text_view_eng;
     private TextView text_view_chi;
@@ -56,6 +61,8 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
     private int mLastPos = -1;
     private CardScaleHelper mCardScaleHelper = null;
     private List<Integer> mList = new ArrayList<>();
+
+    private boolean isMarked = false;
 
     private RequestQueue queue;
 
@@ -95,11 +102,19 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
 
         mDailyOneList= DataSupport.findAll(DailyOneItem.class);
 
-        DailyOneItem dailyOneItem=mDailyOneList.get(mDailyOneList.size()-1);
+        final DailyOneItem dailyOneItem=mDailyOneList.get(mDailyOneList.size()-1);
         Glide.with(getActivity()).load(dailyOneItem.getImgUrl()).into(Today_daily);
         date.setText(dailyOneItem.getDateline());
         text_view_eng.setText(dailyOneItem.getContent());
         text_view_chi.setText(dailyOneItem.getNote());
+
+        if(NoteBookDBUtil.queryIfItemExist(dailyOneItem.getContent())){
+            image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
+            isMarked=true;
+        }else {
+            image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
+            isMarked=false;
+        }
 
         more_daily.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +123,41 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
                 getActivity().startActivity(intent);
             }
         });
+
+        image_view_mark_star.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+                // 在没有被收藏的情况下
+                if (!isMarked){
+                    image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
+                    Snackbar.make(image_view_mark_star, R.string.add_to_notebook,Snackbar.LENGTH_SHORT)
+                            .show();
+                    isMarked = true;
+
+//                    ContentValues values = new ContentValues();
+//                    values.put("input",model.getWord());
+//                    values.put("output",result);
+//                    DBUtil.insertValue(dbHelper,values);
+
+//                    NoteBookDBUtil.insertValue(dailyOneItem.getContent(),dailyOneItem.getNote());
+                    NoteBookDBUtil.insertDailyValue(dailyOneItem.getContent(),dailyOneItem.getNote());
+//                    values.clear();
+
+                } else {
+                    image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
+                    Snackbar.make(image_view_mark_star,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT)
+                            .show();
+                    isMarked = false;
+                    NoteBookDBUtil.deleteValue(dailyOneItem.getContent());
+//                    DBUtil.deleteValue(dbHelper, model.getWord());
+                }
+            }
+        });
+
+
 //        dailyone.setAdapter(new CardRvAdapter(getContext(),mDailyOneList));
 //
 //        CustomSnapHelper customSnapHelper=new CustomSnapHelper();
@@ -151,6 +201,10 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
         text_view_chi=(TextView)view.findViewById(R.id.text_view_chi);
         more_daily=(ImageView)view.findViewById(R.id.more_daily);
         choose_daily=(ImageView)view.findViewById(R.id.choose_daily);
+
+        image_view_mark_star=(ImageView)view.findViewById(R.id.image_view_mark_star);
+        image_view_copy=(ImageView)view.findViewById(R.id.image_view_copy);
+        image_view_share=(ImageView)view.findViewById(R.id.image_view_share);
 
 //        dailyone=(RecyclerView)view.findViewById(R.id.dailyone);
 //        mBlurView = (ImageView)view.findViewById(R.id.blurView);

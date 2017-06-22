@@ -33,6 +33,13 @@ public class NoteBookDBUtil {
         Log.e("Add","A");
     }
 
+    public static void insertDailyValue(String input,String output){
+        NotebookMark notebookMark=new NotebookMark();
+        notebookMark.setInput(input);
+        notebookMark.setOutput(output);
+        notebookMark.save();
+    }
+
     public static void deleteValue(String input){
         DataSupport.deleteAll(NotebookMark.class,"input = ?",input);
         Log.e("Del","D");
