@@ -16,6 +16,8 @@ public class Constants {
     //http://open.iciba.com/dsapi/?date=20170520
     public static final String DAILY_SENTENCE = "http://open.iciba.com/dsapi";
 
+    public static final String DAILY_FORDATE="http://open.iciba.com/dsapi/?date=";
+
     /**
      * 必应词典base url
      * 拼接参数为：

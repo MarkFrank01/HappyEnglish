@@ -1,5 +1,6 @@
 package com.wjc.simpletranslate.dailyone;
 
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -20,12 +21,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.adapter.CardRvAdapter;
+import com.wjc.simpletranslate.constant.Constants;
 import com.wjc.simpletranslate.dailyone.TestDaily.TestDailyActivity;
 import com.wjc.simpletranslate.db.NoteBookDBUtil;
 import com.wjc.simpletranslate.model.DailyOneItem;
@@ -36,7 +39,10 @@ import com.wjc.simpletranslate.util.DailyOneUtil.ViewSwitchUtils;
 
 import org.litepal.crud.DataSupport;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
@@ -67,6 +73,10 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
     private List<Integer> mList = new ArrayList<>();
 
     private boolean isMarked = false;
+
+    private int mYear = Calendar.getInstance().get(Calendar.YEAR);
+    private int mMonth = Calendar.getInstance().get(Calendar.MONTH);
+    private int mDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
     private RequestQueue queue;
 
@@ -125,6 +135,45 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
             public void onClick(View v) {
                 Intent intent=new Intent(getActivity(), TestDailyActivity.class);
                 getActivity().startActivity(intent);
+            }
+        });
+
+        choose_daily.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar now = Calendar.getInstance();
+                now.set(mYear, mMonth, mDay);
+                DatePickerDialog dialog = DatePickerDialog.newInstance(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+                        mYear = year;
+                        mMonth = monthOfYear;
+                        mDay = dayOfMonth;
+                        Calendar temp = Calendar.getInstance();
+                        temp.clear();
+                        temp.set(year, monthOfYear, dayOfMonth);
+                        Toast.makeText(getContext(), year+""+monthOfYear+""+dayOfMonth+"", Toast.LENGTH_SHORT).show();
+
+                        long date=temp.getTimeInMillis();
+                        String sDate;
+                        Date d = new Date(date);
+                        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                        sDate = format.format(d);
+
+                        Log.e("DATEURL",Constants.DAILY_FORDATE+sDate);
+//                        Constants.DAILY_FORDATE
+                    }
+                }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+
+                dialog.setMaxDate(Calendar.getInstance());
+                Calendar minDate = Calendar.getInstance();
+                // 2013.5.20是知乎日报api首次上线
+                minDate.set(2013, 5, 20);
+                dialog.setMinDate(minDate);
+                dialog.vibrate(false);
+
+                dialog.show(getActivity().getFragmentManager(), "DatePickerDialog");
+
             }
         });
 
@@ -224,6 +273,7 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
         text_view_chi=(TextView)view.findViewById(R.id.text_view_chi);
         more_daily=(ImageView)view.findViewById(R.id.more_daily);
         choose_daily=(ImageView)view.findViewById(R.id.choose_daily);
+
 
         image_view_mark_star=(ImageView)view.findViewById(R.id.image_view_mark_star);
         image_view_copy=(ImageView)view.findViewById(R.id.image_view_copy);
