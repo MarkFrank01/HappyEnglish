@@ -1,5 +1,7 @@
 package com.wjc.simpletranslate.dailyone;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -36,6 +38,8 @@ import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 /**
  * Created by Administrator on 2017/5/7.
@@ -128,8 +132,6 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
             @Override
             public void onClick(View v) {
 
-
-
                 // 在没有被收藏的情况下
                 if (!isMarked){
                     image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
@@ -154,6 +156,27 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
                     NoteBookDBUtil.deleteValue(dailyOneItem.getContent());
 //                    DBUtil.deleteValue(dbHelper, model.getWord());
                 }
+            }
+        });
+
+        image_view_copy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+                ClipData clipData = ClipData.newPlainText("text", String.valueOf(text_view_eng.getText() + "\n" + text_view_chi.getText()));
+                manager.setPrimaryClip(clipData);
+
+                Snackbar.make(image_view_copy, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+        image_view_share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND).setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, String.valueOf(text_view_eng.getText()) + "\n" + text_view_chi.getText());
+                startActivity(Intent.createChooser(intent,getString(R.string.choose_app_to_share)));
             }
         });
 
