@@ -66,11 +66,7 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
     private TextView text_view_eng;
     private TextView text_view_chi;
 
-    private ImageView mBlurView;
-    private Runnable mBlurRunnable;
-    private int mLastPos = -1;
-    private CardScaleHelper mCardScaleHelper = null;
-    private List<Integer> mList = new ArrayList<>();
+
 
     private boolean isMarked = false;
 
@@ -89,14 +85,6 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            View decorView = getActivity().getWindow().getDecorView();
-            int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            decorView.setSystemUiVisibility(option);
-            getActivity().getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
 
         queue= Volley.newRequestQueue(getActivity().getApplicationContext());
     }
@@ -117,18 +105,14 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
         mDailyOneList= DataSupport.findAll(DailyOneItem.class);
 
         final DailyOneItem dailyOneItem=mDailyOneList.get(mDailyOneList.size()-1);
-        Glide.with(getActivity()).load(dailyOneItem.getImgUrl()).into(Today_daily);
-        date.setText(dailyOneItem.getDateline());
-        text_view_eng.setText(dailyOneItem.getContent());
-        text_view_chi.setText(dailyOneItem.getNote());
+//        showData(dailyOneItem.getImgUrl(),dailyOneItem.getDateline(),dailyOneItem.getContent(),dailyOneItem.getNote());
 
-        if(NoteBookDBUtil.queryIfItemExist(dailyOneItem.getContent())){
-            image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
-            isMarked=true;
-        }else {
-            image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
-            isMarked=false;
-        }
+//        Glide.with(getActivity()).load(dailyOneItem.getImgUrl()).into(Today_daily);
+//        date.setText(dailyOneItem.getDateline());
+//        text_view_eng.setText(dailyOneItem.getContent());
+//        text_view_chi.setText(dailyOneItem.getNote());
+
+//        checkData(dailyOneItem.getContent());
 
         more_daily.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,19 +139,18 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
                         Toast.makeText(getContext(), year+""+monthOfYear+""+dayOfMonth+"", Toast.LENGTH_SHORT).show();
 
                         long date=temp.getTimeInMillis();
-                        String sDate;
                         Date d = new Date(date);
                         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                        sDate = format.format(d);
+                        String  sDate = format.format(d);
 
                         Log.e("DATEURL",Constants.DAILY_FORDATE+sDate);
-//                        Constants.DAILY_FORDATE
+                        presenter.requestDataByDate(Constants.DAILY_FORDATE+sDate);
                     }
                 }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
 
                 dialog.setMaxDate(Calendar.getInstance());
                 Calendar minDate = Calendar.getInstance();
-                // 2013.5.20是知乎日报api首次上线
+
                 minDate.set(2013, 5, 20);
                 dialog.setMinDate(minDate);
                 dialog.vibrate(false);
@@ -180,82 +163,68 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
         image_view_mark_star.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                checkDataAndCollect(dailyOneItem.getContent(),dailyOneItem.getNote());
 
-                // 在没有被收藏的情况下
-                if (!isMarked){
-                    image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
-                    Snackbar.make(image_view_mark_star, R.string.add_to_notebook,Snackbar.LENGTH_SHORT)
-                            .show();
-                    isMarked = true;
-
-//                    ContentValues values = new ContentValues();
-//                    values.put("input",model.getWord());
-//                    values.put("output",result);
-//                    DBUtil.insertValue(dbHelper,values);
-
-//                    NoteBookDBUtil.insertValue(dailyOneItem.getContent(),dailyOneItem.getNote());
-                    NoteBookDBUtil.insertDailyValue(dailyOneItem.getContent(),dailyOneItem.getNote());
-//                    values.clear();
-
-                } else {
-                    image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
-                    Snackbar.make(image_view_mark_star,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT)
-                            .show();
-                    isMarked = false;
-                    NoteBookDBUtil.deleteValue(dailyOneItem.getContent());
-//                    DBUtil.deleteValue(dbHelper, model.getWord());
-                }
             }
         });
 
         image_view_copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
-                ClipData clipData = ClipData.newPlainText("text", String.valueOf(text_view_eng.getText() + "\n" + text_view_chi.getText()));
-                manager.setPrimaryClip(clipData);
+                doCopy();
 
-                Snackbar.make(image_view_copy, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
             }
         });
 
         image_view_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_SEND).setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT, String.valueOf(text_view_eng.getText()) + "\n" + text_view_chi.getText());
-                startActivity(Intent.createChooser(intent,getString(R.string.choose_app_to_share)));
+                doShare();
+
             }
         });
 
 
-//        dailyone.setAdapter(new CardRvAdapter(getContext(),mDailyOneList));
-//
-//        CustomSnapHelper customSnapHelper=new CustomSnapHelper();
-//        customSnapHelper.attachToRecyclerView(dailyone);
-
-//        for (int i = 0; i < 10; i++) {
-//            mList.add(R.mipmap.pic4);
-//            mList.add(R.mipmap.pic5);
-//            mList.add(R.mipmap.pic6);
-//        }
-//
-//        dailyone=(RecyclerView)view.findViewById(R.id.dailyone);
-//        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-//        dailyone.setLayoutManager(linearLayoutManager);
-//        dailyone.setAdapter(new CardRvAdapter(getContext(),mDailyOneList));
-//        // mRecyclerView绑定scale效果
-//        mCardScaleHelper = new CardScaleHelper();
-//        mCardScaleHelper.setCurrentItemPos(2);
-//        mCardScaleHelper.attachToRecyclerView(dailyone);
-
-
-//        initBlurBackground();
-
 
         return view;
     }
+
+    public void checkDataAndCollect(String content,String note) {
+        // 在没有被收藏的情况下
+        if (!isMarked){
+            image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
+            Snackbar.make(image_view_mark_star, R.string.add_to_notebook,Snackbar.LENGTH_SHORT)
+                    .show();
+            isMarked = true;
+
+            NoteBookDBUtil.insertDailyValue(content,note);
+
+        } else {
+            image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
+            Snackbar.make(image_view_mark_star,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT)
+                    .show();
+            isMarked = false;
+            NoteBookDBUtil.deleteValue(content);
+        }
+    }
+
+    private void doShare() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND).setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, String.valueOf(text_view_eng.getText()) + "\n" + text_view_chi.getText());
+        startActivity(Intent.createChooser(intent,getString(R.string.choose_app_to_share)));
+    }
+
+    private void doCopy() {
+        ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("text", String.valueOf(text_view_eng.getText() + "\n" + text_view_chi.getText()));
+        manager.setPrimaryClip(clipData);
+
+        Snackbar.make(image_view_copy, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
+    }
+
+
+
 
 
     @Override
@@ -286,38 +255,30 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
 
 
     @Override
+    public boolean checkData(String content) {
+        if(NoteBookDBUtil.queryIfItemExist(content)){
+            image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
+            isMarked=true;
+        }else {
+            image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
+            isMarked=false;
+        }
+
+        return  isMarked;
+    }
+
+    @Override
+    public void showData(String imgUrl, String dateline, String content, String note) {
+        Glide.with(getActivity()).load(imgUrl).into(Today_daily);
+        date.setText(dateline);
+        text_view_eng.setText(content);
+        text_view_chi.setText(note);
+    }
+
+    @Override
     public RequestQueue initQueue() {
         return queue;
     }
 
 
-    private void initBlurBackground() {
-        dailyone.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    notifyBackgroundChange();
-                }
-            }
-        });
-
-        notifyBackgroundChange();
-    }
-
-    private void notifyBackgroundChange() {
-
-        if (mLastPos == mCardScaleHelper.getCurrentItemPos()) return;
-        mLastPos = mCardScaleHelper.getCurrentItemPos();
-        final int resId = mList.get(mCardScaleHelper.getCurrentItemPos());
-        mBlurView.removeCallbacks(mBlurRunnable);
-        mBlurRunnable = new Runnable() {
-            @Override
-            public void run() {
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resId);
-                ViewSwitchUtils.startSwitchBackgroundAnim(mBlurView, BlurBitmapUtils.getBlurBitmap(mBlurView.getContext(), bitmap, 15));
-            }
-        };
-        mBlurView.postDelayed(mBlurRunnable, 500);
-    }
 }

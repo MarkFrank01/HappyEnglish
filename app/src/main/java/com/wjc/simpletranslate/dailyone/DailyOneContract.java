@@ -14,19 +14,17 @@ public class DailyOneContract {
 
     interface View extends BaseView<Presenter>{
 
-//        void showResult(ArrayList<DailyOneItem> list);
+        boolean checkData(String Content);
+
+        void showData(String imgUrl,String dateline,String content,String note);
 
         RequestQueue initQueue();
     }
 
     interface Presenter extends BasePresenter{
 
-        void doCopy(String result);
-
-        void doShare(String result);
-
         void requestData();
 
-//        ArrayList<DailyOneItem> returnResult();
+        void requestDataByDate(String URL);
     }
 }

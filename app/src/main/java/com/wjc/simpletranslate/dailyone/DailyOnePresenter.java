@@ -1,5 +1,6 @@
 package com.wjc.simpletranslate.dailyone;
 
+import android.app.Application;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -13,6 +14,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
+import com.wjc.simpletranslate.MyApplication;
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.constant.Constants;
 import com.wjc.simpletranslate.db.DBUtil;
@@ -50,22 +52,6 @@ public class DailyOnePresenter implements DailyOneContract.Presenter{
         this.view.setPresenter(this);
     }
 
-    @Override
-    public void doCopy(String result) {
-        ClipboardManager manager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText("text", result);
-        manager.setPrimaryClip(clipData);
-
-//        Snackbar.make(ivCopy, R.string.copy_done, Snackbar.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void doShare(String result) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND).setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, result);
-        context.startActivity(Intent.createChooser(intent,context.getString(R.string.choose_app_to_share)));
-    }
 
     @Override
     public void requestData() {
@@ -84,6 +70,9 @@ public class DailyOnePresenter implements DailyOneContract.Presenter{
                     Log.e("imageUrl",imageUrl);
                     Log.e("content",content);
 
+                    view.checkData(content);
+                    view.showData(imageUrl,date,content,note);
+
                     List<DailyOneItem> isSaveDaily=DataSupport.where("imgUrl = ?",imageUrl).find(DailyOneItem.class);
                     boolean Save=isSaveDaily.isEmpty();
                     if(Save) {
@@ -94,12 +83,7 @@ public class DailyOnePresenter implements DailyOneContract.Presenter{
                         dailyOneItem.setDateline(date);
                         dailyOneItem.save();
                     }
-//                    List<DailyOneItem> list=DataSupport.findAll(DailyOneItem.class);
-//                    int i=0;
-//                    for(DailyOneItem dailyOneItem1:list){
-//                        i++;
-//                        Log.e("D",i+" : "+dailyOneItem1.getImgUrl());
-//                    }
+
 
                     ArrayList<DailyOneItem> items= (ArrayList<DailyOneItem>) DataSupport.findAll(DailyOneItem.class);
                      int i=0;
@@ -109,30 +93,6 @@ public class DailyOnePresenter implements DailyOneContract.Presenter{
                     }
 
                     result=items;
-
-//                    Glide.with(getActivity())
-//                            .load(imageUrl)
-//                            .asBitmap()
-//                            .centerCrop()
-//                            .into(imageViewMain);
-//
-////                    textViewEng.setText(jsonObject.getString("content"));
-////                    textViewChi.setText(jsonObject.getString("note"));
-//                    textViewEng.setText(content);
-//                    textViewChi.setText(note);
-//
-//                    if (DBUtil.queryIfItemExist(dbHelper,textViewEng.getText().toString())){
-//                        ivStar.setImageResource(R.drawable.ic_grade_white_24dp);
-//                        isMarked = true;
-//                    } else {
-//                        ivStar.setImageResource(R.drawable.ic_star_border_white_24dp);
-//                        isMarked = false;
-//                    }
-//
-//                    dailyOneItem.setImgUrl(imageUrl);
-//                    dailyOneItem.setContent(content);
-//                    dailyOneItem.setNote(note);
-//                    Log.e("dateline",jsonObject.getString("dateline"));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -145,6 +105,39 @@ public class DailyOnePresenter implements DailyOneContract.Presenter{
             }
         });
 
+        queue.add(request);
+    }
+
+    @Override
+    public void requestDataByDate(String URL) {
+        queue=view.initQueue();
+        JsonObjectRequest request=new JsonObjectRequest(Request.Method.GET, URL, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    imageUrl = jsonObject.getString("picture2");
+                    date = jsonObject.getString("dateline");
+                    content = jsonObject.getString("content");
+                    note = jsonObject.getString("note");
+
+
+                    Log.e("imageUrl1",imageUrl);
+                    Log.e("content1",content);
+
+                    view.checkData(content);
+                    view.showData(imageUrl,date,content,note);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+
+            }
+        });
         queue.add(request);
     }
 
