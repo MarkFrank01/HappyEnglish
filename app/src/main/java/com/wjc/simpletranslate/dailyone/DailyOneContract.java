@@ -18,6 +18,8 @@ public class DailyOneContract {
 
         void showData(String imgUrl,String dateline,String content,String note);
 
+        void checkDataAndCollect(final String content, final String note,boolean mark);
+
         RequestQueue initQueue();
     }
 

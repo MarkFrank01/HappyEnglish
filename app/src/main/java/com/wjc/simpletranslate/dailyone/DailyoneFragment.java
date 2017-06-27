@@ -160,13 +160,14 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
             }
         });
 
-        image_view_mark_star.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkDataAndCollect(dailyOneItem.getContent(),dailyOneItem.getNote());
-
-            }
-        });
+//        image_view_mark_star.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                checkDataAndCollect(dailyOneItem.getContent(),dailyOneItem.getNote());
+//
+//            }
+//        });
+        checkDataAndCollect(dailyOneItem.getContent(),dailyOneItem.getNote(),isMarked);
 
         image_view_copy.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,23 +190,33 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
         return view;
     }
 
-    public void checkDataAndCollect(String content,String note) {
-        // 在没有被收藏的情况下
-        if (!isMarked){
-            image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
-            Snackbar.make(image_view_mark_star, R.string.add_to_notebook,Snackbar.LENGTH_SHORT)
-                    .show();
-            isMarked = true;
+    @Override
+    public void checkDataAndCollect(final String content, final String note,boolean mark) {
+        isMarked=mark;
 
-            NoteBookDBUtil.insertDailyValue(content,note);
+        image_view_mark_star.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 在没有被收藏的情况下
+                if (!isMarked){
+                    image_view_mark_star.setImageResource(R.drawable.ic_grade_white_24dp);
+                    Snackbar.make(image_view_mark_star, R.string.add_to_notebook,Snackbar.LENGTH_SHORT)
+                            .show();
+                    isMarked = true;
 
-        } else {
-            image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
-            Snackbar.make(image_view_mark_star,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT)
-                    .show();
-            isMarked = false;
-            NoteBookDBUtil.deleteValue(content);
-        }
+                    NoteBookDBUtil.insertDailyValue(content,note);
+
+                } else {
+                    image_view_mark_star.setImageResource(R.drawable.ic_star_border_white_24dp);
+                    Snackbar.make(image_view_mark_star,R.string.remove_from_notebook,Snackbar.LENGTH_SHORT)
+                            .show();
+                    isMarked = false;
+                    NoteBookDBUtil.deleteValue(content);
+                }
+
+            }
+        });
+
     }
 
     private void doShare() {

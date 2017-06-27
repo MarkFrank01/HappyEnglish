@@ -124,7 +124,8 @@ public class DailyOnePresenter implements DailyOneContract.Presenter{
                     Log.e("imageUrl1",imageUrl);
                     Log.e("content1",content);
 
-                    view.checkData(content);
+                    boolean mark=view.checkData(content);
+                    view.checkDataAndCollect(content,note,mark);
                     view.showData(imageUrl,date,content,note);
 
                 } catch (JSONException e) {

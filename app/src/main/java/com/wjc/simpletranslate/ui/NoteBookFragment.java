@@ -249,4 +249,12 @@ public class NoteBookFragment extends Fragment {
     }
 
 
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        Log.e("IS","YES");
+        loadData();
+        handleResults();
+    }
 }
