@@ -9,9 +9,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/MaterialPreference" />
+            <option value="$PROJECT_DIR$/Notes-master" />
             <option value="$PROJECT_DIR$/TestGallery" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/orm-library" />
             <option value="$PROJECT_DIR$/paperplane" />
             <option value="$PROJECT_DIR$/trans" />
           </set>
@@ -19,9 +22,12 @@
         <option name="myModules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/MaterialPreference" />
+            <option value="$PROJECT_DIR$/Notes-master" />
             <option value="$PROJECT_DIR$/TestGallery" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/orm-library" />
             <option value="$PROJECT_DIR$/paperplane" />
             <option value="$PROJECT_DIR$/trans" />
           </set>

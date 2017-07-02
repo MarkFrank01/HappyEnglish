@@ -1,24 +1,18 @@
 package com.wjc.simpletranslate.ui;
 
-import android.content.ActivityNotFoundException;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
+
 import android.widget.Toast;
 
 
 import com.wjc.simpletranslate.R;
 import com.wjc.simpletranslate.service.ClipboardService;
 
-import static android.content.Context.CLIPBOARD_SERVICE;
 
 
 /**
@@ -26,6 +20,8 @@ import static android.content.Context.CLIPBOARD_SERVICE;
  */
 
 public class SettingsPreferenceFragment extends PreferenceFragmentCompat {
+
+
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -37,11 +33,15 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat {
                 if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("tap_translate", false)) {
                     getActivity().startService(new Intent(getActivity(), ClipboardService.class));
                 } else {
-                    getActivity().stopService(new Intent(getActivity(),ClipboardService.class));
+                    getActivity().stopService(new Intent(getActivity(), ClipboardService.class));
                 }
                 return true;
             }
         });
+
+
+    }
+
 
 /*        findPreference("source").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -129,7 +129,7 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat {
             }
         });*/
 
-    }
+
 
     private void showError() {
         Toast.makeText(getActivity(), R.string.error, Toast.LENGTH_SHORT).show();

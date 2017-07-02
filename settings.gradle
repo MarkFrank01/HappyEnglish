@@ -1,1 +1,1 @@
-include ':app', 'paperplane', ':paperplane', ':trans', ':TestGallery', ':library'
+include ':app', 'paperplane', ':paperplane', ':trans', ':TestGallery', ':library', ':MaterialPreference', ':orm-library', ':Notes-master'

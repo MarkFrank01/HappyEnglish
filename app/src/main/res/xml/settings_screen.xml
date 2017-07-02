@@ -20,7 +20,10 @@
             android:key="samples"
             android:defaultValue="true" />
 
+
+
     </android.support.v7.preference.PreferenceCategory>
+
 
 <!--    <android.support.v7.preference.Preference
         android:title="@string/github_source"
