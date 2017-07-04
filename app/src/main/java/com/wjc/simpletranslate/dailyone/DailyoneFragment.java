@@ -104,7 +104,7 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
 
         mDailyOneList= DataSupport.findAll(DailyOneItem.class);
 
-        final DailyOneItem dailyOneItem=mDailyOneList.get(mDailyOneList.size()-1);
+//        final DailyOneItem dailyOneItem=mDailyOneList.get(mDailyOneList.size()-1);
 //        showData(dailyOneItem.getImgUrl(),dailyOneItem.getDateline(),dailyOneItem.getContent(),dailyOneItem.getNote());
 
 //        Glide.with(getActivity()).load(dailyOneItem.getImgUrl()).into(Today_daily);
@@ -167,7 +167,7 @@ public class DailyoneFragment extends Fragment implements DailyOneContract.View{
 //
 //            }
 //        });
-        checkDataAndCollect(dailyOneItem.getContent(),dailyOneItem.getNote(),isMarked);
+//        checkDataAndCollect(dailyOneItem.getContent(),dailyOneItem.getNote(),isMarked);
 
         image_view_copy.setOnClickListener(new View.OnClickListener() {
             @Override

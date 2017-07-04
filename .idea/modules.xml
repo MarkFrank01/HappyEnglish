@@ -3,12 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HappEnglish.iml" filepath="$PROJECT_DIR$/HappEnglish.iml" />
-      <module fileurl="file://$PROJECT_DIR$/MaterialPreference/MaterialPreference.iml" filepath="$PROJECT_DIR$/MaterialPreference/MaterialPreference.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Notes-master/Notes-master.iml" filepath="$PROJECT_DIR$/Notes-master/Notes-master.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TestGallery/TestGallery.iml" filepath="$PROJECT_DIR$/TestGallery/TestGallery.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
-      <module fileurl="file://$PROJECT_DIR$/orm-library/orm-library.iml" filepath="$PROJECT_DIR$/orm-library/orm-library.iml" />
       <module fileurl="file://$PROJECT_DIR$/paperplane/paperplane.iml" filepath="$PROJECT_DIR$/paperplane/paperplane.iml" />
       <module fileurl="file://$PROJECT_DIR$/trans/trans.iml" filepath="$PROJECT_DIR$/trans/trans.iml" />
     </modules>
