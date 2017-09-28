@@ -8,6 +8,7 @@
     <string name="article">美文赏析</string>
     <string name="notebook">笔记本</string>
     <string name="changedayornight">夜间模式</string>
+    <string name="changecolor">更多主题</string>
     <string name="settings">设置</string>
 
     <string name="search_notebook">搜索笔记</string>

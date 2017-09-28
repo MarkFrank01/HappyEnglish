@@ -24,6 +24,7 @@
                   android:icon="@drawable/ic_brightness_6_black_24dp"
                   android:title="@string/changedayornight"/>
 
+
             <item
                 android:id="@+id/nav_setting"
                 android:checkable="false"

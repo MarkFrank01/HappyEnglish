@@ -7,4 +7,8 @@
     <color name="textColorPrimary">#616161</color>
     <color name="viewBackground">@android:color/white</color>
     <color name="dividerColor">#dddddd</color>
+
+
+
+
 </resources>

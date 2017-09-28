@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.wjc.simpletranslate.util.ActivityCollectorUtil;
 
+
 public class BaseActivity extends AppCompatActivity {
 
     @Override

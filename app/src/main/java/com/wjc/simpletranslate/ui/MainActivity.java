@@ -61,18 +61,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private static final String ACTION_DAILY_ONE = "com.wjc.simpletranslate.dailyone";
     private static final String ACTION_NOTEBOOK = "com.wjc.simpletranslate.notebook";
-    private static final String ACTION_TRANSLATE= "com.wjc.simpletranslate.translate";
+    private static final String ACTION_TRANSLATE = "com.wjc.simpletranslate.translate";
 
 
     private SharedPreferences prefs;
-    private long exitTime=0;
+    private long exitTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Connector.getDatabase();
-        prefs= PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         initViews();
 
@@ -88,11 +88,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             noteBookFragment = new NoteBookFragment();
         }
 
-        translatePresenter=new TranslatePresenter(MyApplication.getContext(),translateFragment);
-        dailyOnePresenter=new DailyOnePresenter(MyApplication.getContext(),dailyOneFragment);
+        translatePresenter = new TranslatePresenter(MyApplication.getContext(), translateFragment);
+        dailyOnePresenter = new DailyOnePresenter(MyApplication.getContext(), dailyOneFragment);
 
         FragmentManager manager = getSupportFragmentManager();
-
 
 
         if (!translateFragment.isAdded()) {
@@ -141,8 +140,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        View headerView=navigationView.getHeaderView(0);
-        header_day_pic=(ImageView)headerView.findViewById(R.id.header_day_pic);
+        View headerView = navigationView.getHeaderView(0);
+        header_day_pic = (ImageView) headerView.findViewById(R.id.header_day_pic);
         header_day_pic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,53 +154,53 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void ReadyLoadPic() {
-        String bingPic=prefs.getString("bing_pic",null);
-        if(bingPic!=null){
+        String bingPic = prefs.getString("bing_pic", null);
+        if (bingPic != null) {
             Glide.with(this).load(bingPic).placeholder(R.drawable.nav_header).into(header_day_pic);
-            Log.e("bingPic"," "+bingPic);
+            Log.e("bingPic", " " + bingPic);
 
 //            DailyPic dailyPic=new DailyPic();
 //            dailyPic.setPicUrl();
-            List<DailyPic> Photos= DataSupport.findAll(DailyPic.class);
-            int i=0;
-            for (DailyPic Photo:Photos){
+            List<DailyPic> Photos = DataSupport.findAll(DailyPic.class);
+            int i = 0;
+            for (DailyPic Photo : Photos) {
                 i++;
-                Log.e("dailyPic",i+" "+Photo.getPicUrl());
+                Log.e("dailyPic", i + " " + Photo.getPicUrl());
             }
-        }else {
+        } else {
             loadingPic();
         }
     }
 
     private void loadingPic() {
-        String requestPic="http://guolin.tech/api/bing_pic";
+        String requestPic = "http://guolin.tech/api/bing_pic";
         HttpUtil.sendOkHttpRequest(requestPic, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-              e.printStackTrace();
+                e.printStackTrace();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                final String bing_pic=response.body().string();
-                SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit();
-                editor.putString("bing_pic",bing_pic);
+                final String bing_pic = response.body().string();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit();
+                editor.putString("bing_pic", bing_pic);
                 editor.apply();
 
 
-                List<DailyPic> isSavePic=DataSupport.where("PicUrl = ?",bing_pic).find(DailyPic.class);
-                boolean Save=isSavePic.isEmpty();
-                if(Save){
+                List<DailyPic> isSavePic = DataSupport.where("PicUrl = ?", bing_pic).find(DailyPic.class);
+                boolean Save = isSavePic.isEmpty();
+                if (Save) {
                     //将响应地址存到数据库
-                    DailyPic dailyPic=new DailyPic();
+                    DailyPic dailyPic = new DailyPic();
                     dailyPic.setPicUrl(bing_pic);
                     dailyPic.save();
                     //
-                    List<DailyPic> Photos= DataSupport.findAll(DailyPic.class);
-                    int i=0;
-                    for (DailyPic Photo:Photos){
+                    List<DailyPic> Photos = DataSupport.findAll(DailyPic.class);
+                    int i = 0;
+                    for (DailyPic Photo : Photos) {
                         i++;
-                        Log.e("dailyPic1",i+" "+Photo.getPicUrl());
+                        Log.e("dailyPic1", i + " " + Photo.getPicUrl());
                     }
                 }
 
@@ -219,7 +218,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }
@@ -254,7 +252,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         int id = item.getItemId();
-     if (id == R.id.nav_translate) {
+        if (id == R.id.nav_translate) {
 
             showHideFragment(0);
 
@@ -334,7 +332,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * and handle other operations like set toolbar's title
      * set the navigation's checked item
      *
-     * @param position which fragment to show, only 4 values at this time
+     * @param position which fragment to show, only 3 values at this time
      *                 0 for translate fragment
      *                 1 for daily one fragment
      *                 2 for notebook fragment
@@ -346,11 +344,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         manager.beginTransaction().hide(dailyOneFragment).commit();
         manager.beginTransaction().hide(noteBookFragment).commit();
 
-       if (position == 0) {
+        if (position == 0) {
             manager.beginTransaction().show(translateFragment).commit();
             toolbar.setTitle(R.string.translate);
             navigationView.setCheckedItem(R.id.nav_translate);
-        }else if (position == 1) {
+        } else if (position == 1) {
             toolbar.setTitle(R.string.daily_one);
             manager.beginTransaction().show(dailyOneFragment).commit();
             navigationView.setCheckedItem(R.id.nav_daily);
@@ -363,22 +361,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(event.getKeyCode()==KeyEvent.KEYCODE_BACK){
-            if(event.getAction()==KeyEvent.ACTION_DOWN&&event.getRepeatCount()==0){
-                exitApp();
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                //判断2次点击事件的时间
+                if ((System.currentTimeMillis() - exitTime) > 2000) {
+                    Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                    exitTime = System.currentTimeMillis();
+                } else {
+                    ActivityCollectorUtil.finishAll();
+                }
             }
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    private void exitApp(){
-        //判断2次点击事件的时间
-        if((System.currentTimeMillis()-exitTime)>2000){
-            Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
-            exitTime=System.currentTimeMillis();
-        }else {
-            ActivityCollectorUtil.finishAll();
-        }
-    }
 }
